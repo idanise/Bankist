@@ -104,6 +104,34 @@ const formatCurrency = function (value, locale, currency) {
   return new Intl.NumberFormat(locale, options).format(value)
 }
 
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0)
+    const sec = String(time % 60).padStart(2, 0)
+
+    //In each call, print the remaining time to UI
+    labelTimer.textContent = `${min}:${sec}`
+
+    //Whem 0 seconds, stop timer and log out user
+    if (time === 0) {
+      clearInterval(timer)
+      labelWelcome.textContent = 'Login to get started'
+      containerApp.style.opacity = 0
+    }
+
+    //Decrease 1s
+    time--
+  }
+  // set time to 5 mins
+  let time = 120
+
+  // Call the timer every second
+  tick()
+  const timer = setInterval(tick, 1000)
+  return timer
+}
+
+//////////////////
 const displayMovments = function (acc, sort = false) {
   //Empties the container
   containerMovements.innerHTML = ''
@@ -194,12 +222,12 @@ const updateUI = function (acc) {
 }
 
 //Event handler
-let currentAccount
+let currentAccount, timer
 
 //Fake login
-currentAccount = account1
-updateUI(currentAccount)
-containerApp.style.opacity = 100
+// currentAccount = account1
+// updateUI(currentAccount)
+// containerApp.style.opacity = 100
 
 // const now = new Date().toDateString()
 // labelDate.textContent = now
@@ -250,6 +278,10 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = inputLoginPin.value = ''
     inputLoginPin.blur()
 
+    //Timer
+    if (timer) clearInterval(timer)
+    timer = startLogOutTimer()
+
     //Update UI
     updateUI(currentAccount)
   }
@@ -278,6 +310,10 @@ btnTransfer.addEventListener('click', function (e) {
 
     //Update UI
     updateUI(currentAccount)
+
+    //Reset timer
+    clearInterval(timer)
+    timer = startLogOutTimer()
   }
 })
 
@@ -300,6 +336,10 @@ btnLoan.addEventListener('click', function (e) {
   }
   //Clear input field
   inputLoanAmount.value = ''
+
+  //Reset timer
+  clearInterval(timer)
+  timer = startLogOutTimer()
 })
 
 btnClose.addEventListener('click', function (e) {
